@@ -1,7 +1,3 @@
-class FunctionOld:
-  def __call__(self, x):
-    return 3*x**2+4*x+2
-
 class Variable:
   def __init__(self, name):
     self.name = name

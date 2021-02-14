@@ -1,6 +1,6 @@
 from functionParser import getFunction
 
-def test(expr, expected, coords):
+def test(expr, coords, expected):
   f=getFunction(expr)
   res = f.doOperation(coords=coords)
   assert (expected == res), \
