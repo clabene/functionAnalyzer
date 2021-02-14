@@ -1,0 +1,34 @@
+from functionParser import getFunction
+
+def test(expr, expected, coords):
+  f=getFunction(expr)
+  res = f.doOperation(coords=coords)
+  assert (expected == res), \
+    "expr: %s, expected: %f, actual: %f"%(expr, expected, res)
+
+ds=[
+  {"expr":"10^2", "coords":{}, "expected":100},
+  {"expr":"2+3*3+4", "coords":{}, "expected":15},
+  {"expr":"4|2", "coords":{}, "expected":2},
+  {"expr":"4|2*5", "coords":{}, "expected":10},
+  {"expr":"100|(1+1)", "coords":{}, "expected":10},
+  {"expr":"16|2*5", "coords":{}, "expected":20},
+  {"expr":"10+((3*22^2+1*2+(1+2^2*(10+2*3)))*(22+8*1))", "coords":{}, "expected":45580},
+
+  {"expr":"x", "coords":{"x":1}, "expected":1,},
+  {"expr":"x+3", "coords":{"x":5}, "expected":8,},
+  {"expr":"x^3", "coords":{"x":3}, "expected":27,},
+  {"expr":"x|2", "coords":{"x":100}, "expected":10,},
+  {"expr":"100|x", "coords":{"x":2}, "expected":10,},
+  {"expr":"10*((2*x)^2)", "coords":{"x":3}, "expected":360,},
+
+  {"expr":"x+y", "coords":{"x":5, "y":2}, "expected":7,},
+  {"expr":"7+x^2*y^2", "coords":{"x":2, "y":4}, "expected":71,},
+  {"expr":"x*y", "coords":{"x":4, "y":2}, "expected":8,},
+  {"expr":"x|y", "coords":{"x":16, "y":2}, "expected":4,},
+
+  {"expr":"x+y/z", "coords":{"x":10, "y":4, "z":2}, "expected":12,},
+  {"expr":"x+y/z^2-22", "coords":{"x":11, "y":24, "z":2}, "expected":-5,},
+]
+
+for d in ds: test(**d)
