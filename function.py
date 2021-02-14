@@ -11,6 +11,12 @@ class BinaryFunction:
   def __str__(self,):
     s = str(self.x1)+' '+str(self.x2)+' '+str(self.op)
     return s
+  def getVariables(self):
+    vars=[]
+    for x in (self.x1,self.x2):
+      if isinstance(x, Variable): vars.append(x.name)
+      elif isinstance(x, BinaryFunction): vars += x.getVariables()
+    return vars
 
   def _getValue(self, x, coords):
     if isinstance(x, Variable): return coords[x.name]
