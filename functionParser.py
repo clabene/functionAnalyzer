@@ -17,7 +17,6 @@ def getPattern(operands, pairnOnly=False):
 def findInnerParenthesisRE(expr):
   pattern = '(?<!'+'|'.join(KEYWORDS)+')'+PATTERN_PAR # all parenthesis that are not preceded by a keyword
   return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-  #return [(m.start(0), m.end(0)) for m in re.finditer(PATTERN_PAR, expr)]
 
 def extractPlaceHolderRE(expr):
   return re.findall(PATTERN_PH, expr)
@@ -42,18 +41,11 @@ def findKeyWordsRE(expr):
   return idxs
 
 def findKeyWordsArgsRE(expr):
-  pattern = "\(.*[\+\-\/\*\(\)].*\,"
   pattern = "\(.*["+'\\'+'\\'.join(OPERANDS)+"].*\,"
   idxs = [(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, expr)]
-  pattern = "\,.*[\+\-\/\*\(\)].*\)"
+  pattern = "\,.*["+'\\'+'\\'.join(OPERANDS)+"].*\)"
   idxs= idxs+[(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, expr)]
   return idxs
-
-"""
-def findOperationRE(expr):
-  pattern = getPattern(OPERANDS, True)
-  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-"""
 
 """
 2+3*4^(3+1) -> 2+_2_, {_0_: 3+1, _1_: 4^_0_, _2_: 3*_1_}
@@ -75,7 +67,7 @@ Tree representation of a tokenized expression
        /
     _0_^_1_
      /    \
-   _6_+1  3+1
+   _2_+1  3+1
     /
    3*4
 """
@@ -107,28 +99,22 @@ def isNumber(s):
   except: return False
   return True
 
-def isPlaceHolder(s):
-  return len(s)>2 and s[0]==s[-1]=='_' and all(c.isdigit() for c in s[1:-1])
-
-def isVariable(s): # not a number, not a placeholder, not an operation
-  return not (isNumber(s) or isPlaceHolder(s) or isKeyWord(s) or any(c in s for c in OPERANDS))
-
-def isUnit(s):
-  return isNumber(s) or isVariable(s)
+isPlaceHolder = lambda s: len(s)>2 and s[0]==s[-1]=='_' and all(c.isdigit() for c in s[1:-1])
+isVariable    = lambda s: not (isNumber(s) or isPlaceHolder(s) or isKeyWord(s) or any(c in s for c in OPERANDS))
+isUnit        = lambda s: isNumber(s) or isVariable(s)
+isKeyWord     = lambda s: any(s[:2]==k for k in KEYWORDS)
+isSum         = lambda s: '+' in s
+isSub         = lambda s: '-' in s
+isMult        = lambda s: '*' in s
+isDiv         = lambda s: '/' in s
+isPow         = lambda s: '^' in s
+isRoot        = lambda s: '|' in s
 
 def parseUnit(element):
   if isNumber(element):
     return float(element)
   elif isVariable(element):
     return F.Variable(name=element)
-
-isKeyWord = lambda s: any(s[:2]==k for k in KEYWORDS)
-isSum     = lambda s: '+' in s
-isSub     = lambda s: '-' in s
-isMult    = lambda s: '*' in s
-isDiv     = lambda s: '/' in s
-isPow     = lambda s: '^' in s
-isRoot    = lambda s: '|' in s
 
 def treeToFunction(tree):
   if isUnit(tree.expr): return F.Identity(parseUnit(tree.expr))
