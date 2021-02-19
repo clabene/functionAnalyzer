@@ -1,3 +1,5 @@
+from math import log
+
 class Variable:
   def __init__(self, name):
     self.name = name
@@ -55,3 +57,7 @@ class Power(BinaryFunction):
 class Root(BinaryFunction):
   def __init__(self, x1, x2):
     super(Root, self).__init__(x1, x2, lambda x,y: x**(1/y))
+
+class Logarithm(BinaryFunction):
+  def __init__(self, x1, x2):
+    super(Logarithm, self).__init__(x1, x2, log)
