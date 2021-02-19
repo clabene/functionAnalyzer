@@ -1,4 +1,4 @@
-Mathematical function parser and analyzer.
+Mathematical functions parser and analyzer.
 Main features:
 - Arbitrary number of variables
 - Monte Carlo integration
