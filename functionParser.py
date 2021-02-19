@@ -3,10 +3,11 @@ import re
 import function as F
 from utils import mergeDict, decompose
 
-PATTERN_PAR = '\([^\(\)]+\)' # 2+2+12*(1*(2/3)+2)+11 -> (2/3)
+PATTERN_PAR = '\([^\(\)]*\)' # 2+2+12*(1*(2/3)+2)+11 -> (2/3)
 PATTERN_PH = '_[0-9]+_'
 
 OPERANDS = list("+-*/^|") # TODO reaname OPERATIONS
+KEYWORDS = ['rt', 'pw', 'lg']
 
 def getPattern(operands, pairnOnly=False):
   excludedStr = '\\'+'\\'.join(o for o in OPERANDS if (o not in operands or pairnOnly))
@@ -14,7 +15,9 @@ def getPattern(operands, pairnOnly=False):
   return f"[^{excludedStr}]+[{selectedStr}][^{excludedStr}]+"
 
 def findInnerParenthesisRE(expr):
-  return [(m.start(0), m.end(0)) for m in re.finditer(PATTERN_PAR, expr)]
+  pattern = '(?<!'+'|'.join(KEYWORDS)+')'+PATTERN_PAR # all parenthesis that are not preceded by a keyword
+  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
+  #return [(m.start(0), m.end(0)) for m in re.finditer(PATTERN_PAR, expr)]
 
 def extractPlaceHolderRE(expr):
   return re.findall(PATTERN_PH, expr)
@@ -31,21 +34,35 @@ def findPowRootRE(expr):
   pattern = getPattern(["^","|"], True)
   return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
 
+def findKeyWordsRE(expr):
+  idxs=[]
+  for keyword in KEYWORDS:
+    pattern = keyword+PATTERN_PAR
+    idxs += [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
+  return idxs
+
+def findKeyWordsArgsRE(expr):
+  pattern = "\(.*[\+\-\/\*\(\)].*\,"
+  pattern = "\(.*["+'\\'+'\\'.join(OPERANDS)+"].*\,"
+  idxs = [(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, expr)]
+  pattern = "\,.*[\+\-\/\*\(\)].*\)"
+  idxs= idxs+[(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, expr)]
+  return idxs
+
+"""
 def findOperationRE(expr):
   pattern = getPattern(OPERANDS, True)
   return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
+"""
 
 """
 2+3*4^(3+1) -> 2+_2_, {_0_: 3+1, _1_: 4^_0_, _2_: 3*_1_}
 """
 def tokenize(expr, placeHolder=0):
-  functionDict={}
-
   expr, tokens = decompose(expr, findInnerParenthesisRE)
   for k in tokens:
-    tokens[k] = tokens[k][1:-1]
-
-  for idxFinder in [findPowRootRE, findMultDivRE, findAddSubRE]:
+    tokens[k] = tokens[k][1:-1] # remove parehtesis
+  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findPowRootRE, findMultDivRE, findAddSubRE]:
     expr, newTokens = decompose(expr, idxFinder, placeHolder+len(tokens.keys()))
     tokens = mergeDict(tokens, newTokens)
   return expr, tokens
@@ -86,14 +103,14 @@ class ExpressionTree:
       self.tokens[k].printTree(indent=indent+"   ")
 
 def isNumber(s):
-  try: return float(s)
+  try: float(s)
   except: return False
 
 def isPlaceHolder(s):
   return len(s)>2 and s[0]==s[-1]=='_' and all(c.isdigit() for c in s[1:-1])
 
 def isVariable(s): # not a number, not a placeholder, not an operation
-  return not (isNumber(s) or isPlaceHolder(s) or any(c in s for c in OPERANDS))
+  return not (isNumber(s) or isPlaceHolder(s) or isKeyWord(s) or any(c in s for c in OPERANDS))
 
 def isUnit(s):
   return isNumber(s) or isVariable(s)
@@ -104,18 +121,25 @@ def parseUnit(element):
   elif isVariable(element):
     return F.Variable(name=element)
 
-isSum = lambda s: '+' in s
-isSub = lambda s: '-' in s
-isMult = lambda s: '*' in s
-isDiv = lambda s: '/' in s
-isPow = lambda s: '^' in s
-isRoot = lambda s: '|' in s
+isKeyWord = lambda s: any(s[:2]==k for k in KEYWORDS)
+isSum     = lambda s: '+' in s
+isSub     = lambda s: '-' in s
+isMult    = lambda s: '*' in s
+isDiv     = lambda s: '/' in s
+isPow     = lambda s: '^' in s
+isRoot    = lambda s: '|' in s
 
 def treeToFunction(tree):
-
   if isUnit(tree.expr): return F.Identity(parseUnit(tree.expr))
 
-  elif isPlaceHolder(tree.expr): return treeToFunction(tree.tokens[tree.expr])
+  if isPlaceHolder(tree.expr): return treeToFunction(tree.tokens[tree.expr])
+
+  if isKeyWord(tree.expr):
+    fun = tree.expr[:2]
+    operands=[parseUnit(o) if isUnit(o) else treeToFunction(tree.tokens[o]) for o in tree.expr[3:-1].split(',')]
+    if   fun=='lg': return F.Logarithm(*operands)
+    elif fun=='pw': return F.Power(*operands)
+    elif fun=='rt': return F.Root(*operands)
 
   if isSum(tree.expr):
     symbol='+'
