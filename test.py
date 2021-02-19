@@ -1,4 +1,5 @@
 from functionParser import getFunction
+import math
 
 def test(expr, coords, expected):
   f=getFunction(expr)
@@ -10,10 +11,12 @@ ds=[
   {"expr":"10^2", "coords":{}, "expected":100},
   {"expr":"2+3*3+4", "coords":{}, "expected":15},
   {"expr":"4|2", "coords":{}, "expected":2},
+  {"expr":"-12*3", "coords":{"x":2},"expected":-36,},
   {"expr":"4|2*5", "coords":{}, "expected":10},
   {"expr":"100|(1+1)", "coords":{}, "expected":10},
   {"expr":"16|2*5", "coords":{}, "expected":20},
-  {"expr":"10+((3*22^2+1*2+(1+2^2*(10+2*3)))*(22+8*1))", "coords":{}, "expected":45580},
+  {"expr":"10+((3*22^2+1*2+(1+2^2*(10+2*3)))*(22+8*1))", "coords":{},
+    "expected":10+((3*(22**2)+1*2+(1+(2**2)*(10+2*3)))*(22+8*1))},
 
   {"expr":"x", "coords":{"x":1}, "expected":1,},
   {"expr":"x+3", "coords":{"x":5}, "expected":8,},
@@ -29,6 +32,22 @@ ds=[
 
   {"expr":"x+y/z", "coords":{"x":10, "y":4, "z":2}, "expected":12,},
   {"expr":"x+y/z^2-22", "coords":{"x":11, "y":24, "z":2}, "expected":-5,},
+
+  {"expr":"pw(2,3)", "coords":{}, "expected":8,},
+  {"expr":"pw(x,3)", "coords":{"x":5}, "expected":125,},
+  {"expr":"rt(pw(x,6),6)", "coords":{"x":5}, "expected":5,},
+  {"expr":"lg(8,x)", "coords":{"x":2}, "expected":3,},
+  {"expr":"pw(2,pw(2,2))", "coords":{"x":2}, "expected":16,},
+  {"expr":"pw(lg(8,x), rt(16,x))", "coords":{"x":2},
+    "expected":math.log(8,2)**(16**(1/2)),},
+
+  {"expr":"100-pw(lg(8,x)-1, rt(16,x))", "coords":{"x":2},
+    "expected":100-( (math.log(8,2)-1)**(16**(1/2)) ),},
+  {"expr":"-pw(lg(8,x)-1, rt(16,x))", "coords":{"x":2},
+    "expected":-( (math.log(8,2)-1)**(16**(1/2)) ),},
+
+
+
 ]
 
 for d in ds: test(**d)
