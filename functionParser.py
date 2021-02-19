@@ -105,6 +105,7 @@ class ExpressionTree:
 def isNumber(s):
   try: float(s)
   except: return False
+  return True
 
 def isPlaceHolder(s):
   return len(s)>2 and s[0]==s[-1]=='_' and all(c.isdigit() for c in s[1:-1])
@@ -163,5 +164,6 @@ def treeToFunction(tree):
   return funct(*operands)
 
 def getFunction(expr):
+  if expr[0]=='-': expr='0'+expr
   expr=expr.replace(' ','')
   return treeToFunction(ExpressionTree(expr))
