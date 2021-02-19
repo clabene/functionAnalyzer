@@ -10,6 +10,7 @@ def test(expr, coords, expected):
 ds=[
   {"expr":"10^2", "coords":{}, "expected":100},
   {"expr":"2+3*3+4", "coords":{}, "expected":15},
+  {"expr":"2.0+3*3.0+4.0", "coords":{}, "expected":15},
   {"expr":"4|2", "coords":{}, "expected":2},
   {"expr":"-12*3", "coords":{"x":2},"expected":-36,},
   {"expr":"4|2*5", "coords":{}, "expected":10},
@@ -43,7 +44,7 @@ ds=[
 
   {"expr":"100-pw(lg(8,x)-1, rt(16,x))", "coords":{"x":2},
     "expected":100-( (math.log(8,2)-1)**(16**(1/2)) ),},
-  {"expr":"-pw(lg(8,x)-1, rt(16,x))", "coords":{"x":2},
+  {"expr":"-pw(lg(8,x)-1, rt(16.0,x))", "coords":{"x":2},
     "expected":-( (math.log(8,2)-1)**(16**(1/2)) ),},
 
 
