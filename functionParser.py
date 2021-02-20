@@ -3,6 +3,114 @@ import re
 import function as F
 from utils import mergeDict, decompose
 
+"""
+1)
+  Code:
+    method: utils/decomposeString()
+    method: utils/decompose()
+    method: tokenize()
+    class:  ExpressionTree()
+
+  Parse the function string into a tree representation
+  1.1) Split the srting into smaller substrings that reference one another
+      Example: function="(2+3)*4" -> function="_0_*4", _0_="2+3"
+      We refer to this process as 'tokenization', where:
+        - Each substring is called a token
+        - The reference to a substring in a sting is called a placeholder
+      In the example,
+        function="_0_*4" -> the "_0_" in the string is a placeholder
+        _0_="2+3" is a token.
+      The order followed during tokenization is the same as regular mathemaical
+      conventions on the order of operations when evaluating an expression.
+      Namely:
+        1 - parenthesis
+        2 - function-notation operations ( e.g. add(2,3) instead of 2+3 )
+        3 - power, root
+        4 - multiplication, division
+        5 - addition, subtraction
+        * - in cases of ambiguity, operations are performed left to right
+      For instance:
+        start:  expr= "1+(2+3)*4-pw(2,3)"
+        step 1: expr=   "1+_0_*4-pw(2,3)", _0_="2+3"
+        step 2: expr=       "1+_0_*4-_1_", _0_="2+3", _1_="pw(2,3)"
+        step 3: expr=         "1+_2_-_1_", _0_="2+3", _1_="pw(2,3)", _2_="_0_*4"
+        step 4: expr=           "_3_-_1_", _0_="2+3", _1_="pw(2,3)", _2_="_0_*4", _3_="1+_2_"
+
+      The function is tokenized, then each token that is created this way is
+      itself tokenized, and so on until the main function is split into atomic
+      functions. Atomic functions are those that only feature one operation
+      (e.g. "2+3", "_0_*4", ...).
+
+  1.2) The tokens are organized into a tree structure, where each node is a
+  token having as children the tokens that are referenced by its placeholders.
+
+  Complete example of step 1):
+    2+(1+3*4)^(3+1)
+    -> Tokenization (1.1)
+      Main function is tokenized:
+        expr= 2+(1+3*4)^(3+1)
+        expr=       2+_0_^_1_, _0_=1+3*4, _1_=3+1
+        expr=           2+_2_, _0_=1+3*4, _1_=3+1, _2_=_0_^_1_
+      Non-atomic tokens are tokenized:
+        _0_= 1+3*4
+        _0_= 1+_3_, _3_=3*4
+    -> Tree representation (1.2)
+          2+_2_
+             /
+          _0_^_1_
+           /    \
+         _3_+1  3+1
+          /
+         3*4
+  Note:
+    In the actual implementation, steps 1.1 and 1.2 are not so well distinct.
+    In particular, a simplified algorithm that illustrates how the tree is
+    actually built is:
+      class Tree
+        List<Tree> children
+        method initialization(funStr)
+          tokens = tokenize(funStr)
+          if (tokens.lenght!=0)
+            for (token in tokens)
+              children.add( Tree(token) )
+    - tokenize the function and organize it into a first tree
+    - tokenize each obtained token and organize it into a second tree,
+      with the first tree having a reference to the second one; and so on
+
+2)
+  Code:
+    class:  Function/BinaryFunction() and subclasses
+    method: treeToFunction()
+
+  Convert the tree representation into a Function object.
+  Starting from the root of the tree, recursively.
+  First, the operation and the arguments are identified.
+  To each operation corresponds a BinaryFunction subclass.
+  For each argument:
+    if it can be casted into a float, it is
+    if it is a variable, it is converted into a Variable object
+    if it is a placeHolder, the corresponding token in parsed (recursive call)
+  The BinaryFunction object is returned with the arguments
+  Examples:
+    1+2 -> Addition(1,2)
+    1+x -> Addition(1, Variable('x'))
+    3*_0_
+       /   -> Multiplication(3, Addition(2,4))
+      2+4
+  Flow example:
+    3*_0_
+       /
+      2+4
+  '3*_0_' ->    Op: '*'   -> Multiplication
+             Arg 1: '3'   -> 3.0
+             Arg 2: '_0_' -> '2+4' => ---------------Recursive-call----------------  => Multiplication(3, Addition(2,4))
+                                      |    Op: '+' -> Addition                    |
+                                      | Arg 1: '2' -> 2.0        -> Addition(2,4) |
+                                      | Arg 1: '4' -> 4.0                         |
+                                      ---------------------------------------------
+
+"""
+
 PATTERN_PAR = '\([^\(\)]*\)' # 2+2+12*(1*(2/3)+2)+11 -> (2/3)
 PATTERN_PH = '_[0-9]+_'
 
@@ -117,6 +225,7 @@ def parseUnit(element):
     return F.Variable(name=element)
 
 def treeToFunction(tree):
+  # this is only true if the starting expression is a single number or variable
   if isUnit(tree.expr): return F.Identity(parseUnit(tree.expr))
 
   if isPlaceHolder(tree.expr): return treeToFunction(tree.tokens[tree.expr])
