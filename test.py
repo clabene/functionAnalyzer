@@ -51,6 +51,13 @@ ds=[
   {"expr":"PI+E", "coords":{},
     "expected":3.14159265358979323846+2.71828182845904523536,},
 
+  {"expr":"5!", "coords":{}, "expected":120,},
+  {"expr":"3+5!", "coords":{}, "expected":123,},
+  {"expr":"3*3!", "coords":{}, "expected":18,},
+  {"expr":"3*x!", "coords":{'x':4.2}, "expected":72,},
+  {"expr":"(3+x)!*2", "coords":{'x':2}, "expected":240,},
+  {"expr":"pw((3+x)!,3*2)", "coords":{'x':2.9}, "expected":120**6,},
+  {"expr":"pw((3+x)!,3*2)", "coords":{'x':-4}, "expected":1,},
 
 
 ]

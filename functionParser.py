@@ -115,7 +115,7 @@ from constants import CONSTANTS
 PATTERN_PAR = '\([^\(\)]*\)' # 2+2+12*(1*(2/3)+2)+11 -> (2/3)
 PATTERN_PH = '_[0-9]+_'
 
-OPERANDS = list("+-*/^|") # TODO reaname OPERATIONS
+OPERANDS = list("+-*/^|!") # TODO reaname OPERATIONS
 KEYWORDS = ['rt', 'pw', 'lg']
 
 def getPattern(operands, pairnOnly=False):
@@ -142,6 +142,10 @@ def findPowRootRE(expr):
   pattern = getPattern(["^","|"], True)
   return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
 
+def findFractalRE(expr):
+  pattern = '[^\+\-\*\/]+!'
+  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
+
 def findKeyWordsRE(expr):
   idxs=[]
   for keyword in KEYWORDS:
@@ -163,7 +167,7 @@ def tokenize(expr, placeHolder=0):
   expr, tokens = decompose(expr, findInnerParenthesisRE)
   for k in tokens:
     tokens[k] = tokens[k][1:-1] # remove parehtesis
-  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findPowRootRE, findMultDivRE, findAddSubRE]:
+  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findFractalRE, findPowRootRE, findMultDivRE, findAddSubRE]:
     expr, newTokens = decompose(expr, idxFinder, placeHolder+len(tokens.keys()))
     tokens = mergeDict(tokens, newTokens)
   return expr, tokens
@@ -212,6 +216,7 @@ isPlaceHolder = lambda s: len(s)>2 and s[0]==s[-1]=='_' and all(c.isdigit() for 
 isVariable    = lambda s: not (isNumber(s) or isPlaceHolder(s) or isKeyWord(s) or any(c in s for c in OPERANDS))
 isUnit        = lambda s: isNumber(s) or isVariable(s)
 isKeyWord     = lambda s: any(s[:2]==k for k in KEYWORDS)
+isFractal     = lambda s: '!' == s[-1]
 isSum         = lambda s: '+' in s
 isSub         = lambda s: '-' in s
 isMult        = lambda s: '*' in s
@@ -239,24 +244,28 @@ def treeToFunction(tree):
     elif fun=='rt': return F.Root(*operands)
 
   if isSum(tree.expr):
-    symbol='+'
+    arguments = tree.expr.split('+')
     funct = F.Addition
   elif isSub(tree.expr):
-    symbol='-'
+    arguments = tree.expr.split('-')
     funct = F.Subtraction
   elif isMult(tree.expr):
-    symbol='*'
+    arguments = tree.expr.split('*')
     funct = F.Multiplication
   elif isDiv(tree.expr):
-    symbol='/'
+    arguments = tree.expr.split('/')
     funct = F.Division
   elif isPow(tree.expr):
-    symbol='^'
+    arguments = tree.expr.split('^')
     funct = F.Power
   elif isRoot(tree.expr):
-    symbol='|'
+    arguments = tree.expr.split('|')
     funct = F.Root
-  operands=[parseUnit(o) if isUnit(o) else treeToFunction(tree.tokens[o]) for o in tree.expr.split(symbol)]
+  elif isFractal(tree.expr):
+    arguments = [tree.expr[:-1]]
+    funct = F.Fractal
+  else: return # TODO error
+  operands=[parseUnit(a) if isUnit(a) else treeToFunction(tree.tokens[a]) for a in arguments]
   return funct(*operands)
 
 def replaceConstants(expr):
