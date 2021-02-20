@@ -7,7 +7,7 @@ Main features:
 
 TODO
 - UI
-- fractals
+- factorials
 - plotter (only 2D)
 - improve testing
 - include wider support for function notation

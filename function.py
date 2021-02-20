@@ -1,5 +1,5 @@
 from math import log
-from utils import fractal
+from utils import factorial
 
 class Variable:
   def __init__(self, name):
@@ -64,6 +64,6 @@ class Logarithm(BinaryFunction):
   def __init__(self, x1, x2):
     super(Logarithm, self).__init__(x1, x2, log)
 
-class Fractal(BinaryFunction):
+class Factorial(BinaryFunction):
   def __init__(self, x1):
-    super(Fractal, self).__init__(x1, None, lambda x,y: fractal(x))
+    super(Factorial, self).__init__(x1, None, lambda x,y: factorial(x))
