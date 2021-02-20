@@ -29,3 +29,11 @@ def decompose(expr, idxFinder, placeHolder=0):
     expr, subExprs = decomposeString(expr, idxs, placeHolder)
     allSubExprs = mergeDict(allSubExprs, subExprs)
     placeHolder+=len(subExprs.keys())
+
+
+def fractal(x):
+  # TODO throw excpetion for negative numbers
+  # TODO throw warning/exception for non integers ???
+  x=x//1 # only integers
+  if x<=1: return 1 # only positives
+  return x*fractal(x-1)
