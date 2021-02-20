@@ -1,6 +1,7 @@
 Mathematical functions parser and analyzer.
 Main features:
-- Main mathematical operations: +, -, *, /, powers, roots, logarithms, fractals
+- Main mathematical operations: +, -, *, /, power, root, logarithm, factorial
+- arbitrary number of variables
 - mathematical constants (atm Pi and Euler's number only)
 - in-line notation (eg "2^3") and function notation (eg "pw(2,3)") both supported (atm only for power, root and logarithms)
 - arbitrary number of variables

@@ -142,7 +142,7 @@ def findPowRootRE(expr):
   pattern = getPattern(["^","|"], True)
   return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
 
-def findFractalRE(expr):
+def findFactorialRE(expr):
   pattern = '[^\+\-\*\/]+!'
   return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
 
@@ -167,7 +167,7 @@ def tokenize(expr, placeHolder=0):
   expr, tokens = decompose(expr, findInnerParenthesisRE)
   for k in tokens:
     tokens[k] = tokens[k][1:-1] # remove parehtesis
-  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findFractalRE, findPowRootRE, findMultDivRE, findAddSubRE]:
+  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findFactorialRE, findPowRootRE, findMultDivRE, findAddSubRE]:
     expr, newTokens = decompose(expr, idxFinder, placeHolder+len(tokens.keys()))
     tokens = mergeDict(tokens, newTokens)
   return expr, tokens
@@ -216,7 +216,7 @@ isPlaceHolder = lambda s: len(s)>2 and s[0]==s[-1]=='_' and all(c.isdigit() for 
 isVariable    = lambda s: not (isNumber(s) or isPlaceHolder(s) or isKeyWord(s) or any(c in s for c in OPERANDS))
 isUnit        = lambda s: isNumber(s) or isVariable(s)
 isKeyWord     = lambda s: any(s[:2]==k for k in KEYWORDS)
-isFractal     = lambda s: '!' == s[-1]
+isFactorial     = lambda s: '!' == s[-1]
 isSum         = lambda s: '+' in s
 isSub         = lambda s: '-' in s
 isMult        = lambda s: '*' in s
@@ -261,9 +261,9 @@ def treeToFunction(tree):
   elif isRoot(tree.expr):
     arguments = tree.expr.split('|')
     funct = F.Root
-  elif isFractal(tree.expr):
+  elif isFactorial(tree.expr):
     arguments = [tree.expr[:-1]]
-    funct = F.Fractal
+    funct = F.Factorial
   else: return # TODO error
   operands=[parseUnit(a) if isUnit(a) else treeToFunction(tree.tokens[a]) for a in arguments]
   return funct(*operands)

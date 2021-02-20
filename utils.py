@@ -31,9 +31,9 @@ def decompose(expr, idxFinder, placeHolder=0):
     placeHolder+=len(subExprs.keys())
 
 
-def fractal(x):
+def factorial(x):
   # TODO throw excpetion for negative numbers
   # TODO throw warning/exception for non integers ???
   x=x//1 # only integers
   if x<=1: return 1 # only positives
-  return x*fractal(x-1)
+  return x*factorial(x-1)
