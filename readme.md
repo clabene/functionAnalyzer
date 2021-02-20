@@ -8,6 +8,7 @@ Main features:
 - Monte Carlo integration
 
 TODO
+- absolute value
 - UI
 - plotter (only 2D)
 - improve testing
