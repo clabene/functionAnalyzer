@@ -274,8 +274,8 @@ def replaceConstants(expr):
   return expr
 
 def preprocess(expr):
-  if expr[0]=='-': expr='0'+expr
   expr=expr.replace(' ','')
+  if expr[0]=='-': expr='0'+expr
   expr=replaceConstants(expr)
   return expr
 
