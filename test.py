@@ -8,6 +8,7 @@ def test(expr, coords, expected):
     "expr: %s, expected: %f, actual: %f"%(expr, expected, res)
 
 ds=[
+  {"expr":"10.2", "coords":{}, "expected":10.2},
   {"expr":"10^2", "coords":{}, "expected":100},
   {"expr":"2+3*3+4", "coords":{}, "expected":15},
   {"expr":"2.0+3*3.0+4.0", "coords":{}, "expected":15},
