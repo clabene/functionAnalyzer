@@ -2,6 +2,7 @@ import re
 
 import function as F
 from utils import mergeDict, decompose
+from constants import CONSTANTS
 
 """
 1)
@@ -258,7 +259,17 @@ def treeToFunction(tree):
   operands=[parseUnit(o) if isUnit(o) else treeToFunction(tree.tokens[o]) for o in tree.expr.split(symbol)]
   return funct(*operands)
 
-def getFunction(expr):
+def replaceConstants(expr):
+  for c in CONSTANTS:
+    expr=expr.replace(c.name, str(c.value))
+  return expr
+
+def preprocess(expr):
   if expr[0]=='-': expr='0'+expr
   expr=expr.replace(' ','')
+  expr=replaceConstants(expr)
+  return expr
+
+def getFunction(expr):
+  expr = preprocess(expr)
   return treeToFunction(ExpressionTree(expr))
