@@ -50,6 +50,8 @@ ds=[
 
   {"expr":"PI+E", "coords":{},
     "expected":3.14159265358979323846+2.71828182845904523536,},
+  {"expr":"PI*x", "coords":{"x":2},
+    "expected":3.14159265358979323846*2,},
 
   {"expr":"5!", "coords":{}, "expected":120,},
   {"expr":"3+5!", "coords":{}, "expected":123,},
