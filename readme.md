@@ -13,3 +13,4 @@ TODO
 - plotter (only 2D)
 - improve testing
 - include wider support for function notation
+- derivatives
