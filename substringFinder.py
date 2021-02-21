@@ -7,8 +7,8 @@ def getBasicPattern(ops, pairOnly=False, left=True, right=True):
   excludedStr = '\\'+'\\'.join(o for o in OPERATIONS if (o not in ops or pairOnly))
   selectedStr = '\\'+'\\'.join(o for o in ops)
   pattern = f"[{selectedStr}]"
-  if left: pattern = f"[^{excludedStr}]"+pattern
-  if right: pattern = pattern+f"[^{excludedStr}]"
+  if left: pattern = f"[^{excludedStr}]+"+pattern
+  if right: pattern = pattern+f"[^{excludedStr}]+"
   return pattern
 
 class SubstringFinder:
@@ -62,7 +62,7 @@ class KeyWordsArgsFinder(SubstringFinder):
     idxs= idxs+[(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, s)]
     return idxs
 
-class ParenthesisFinder(SubstringFinder):
+class InnerParenthesisFinder(SubstringFinder):
   def find(self, s):
     # find parenthesis that have no inner parenthesis, except for function notation
     """
