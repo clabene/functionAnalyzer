@@ -164,10 +164,8 @@ def findKeyWordsArgsRE(expr):
 2+3*4^(3+1) -> 2+_2_, {_0_: 3+1, _1_: 4^_0_, _2_: 3*_1_}
 """
 def tokenize(expr, placeHolder=0):
-  expr, tokens = decompose(expr, findInnerParenthesisRE)
-  for k in tokens:
-    tokens[k] = tokens[k][1:-1] # remove parehtesis
-  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findFactorialRE, findPowRootRE, findMultDivRE, findAddSubRE]:
+  tokens={}
+  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findInnerParenthesisRE, findFactorialRE, findPowRootRE, findMultDivRE, findAddSubRE]:
     expr, newTokens = decompose(expr, idxFinder, placeHolder+len(tokens.keys()))
     tokens = mergeDict(tokens, newTokens)
   return expr, tokens
@@ -187,6 +185,11 @@ Tree representation of a tokenized expression
 class ExpressionTree:
   def __init__(self, expr, tokens={}, placeHolder=0):
     self.expr, newTokens = tokenize(expr, placeHolder)
+    # remove useless parenthesis
+    for k in newTokens:
+      if newTokens[k][0]=='(' and newTokens[k][-1]==')':
+        newTokens[k] = newTokens[k][1:-1]
+    
     tokens = mergeDict(tokens, newTokens)
     self.tokens = {}
     tokenKeys = extractPlaceHolderRE(self.expr)
