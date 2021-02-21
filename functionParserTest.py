@@ -45,8 +45,20 @@ ds=[
 
   {"expr":"100-pw(lg(8,x)-1, rt(16,x))", "coords":{"x":2},
     "expected":100-( (math.log(8,2)-1)**(16**(1/2)) ),},
-    {"expr":"-pw(lg(8,x)-1, rt(16.0,x))", "coords":{"x":2},
-      "expected":-( (math.log(8,2)-1)**(16**(1/2)) ),},
+  {"expr":"-pw(lg(8,x)-1, rt(16.0,x))", "coords":{"x":2},
+    "expected":-( (math.log(8,2)-1)**(16**(1/2)) ),},
+  {"expr":"1+(pw(2,3)+2)", "coords":{}, "expected":11,},
+  {"expr":"1+(pw((2+1)*2,2)+2)", "coords":{}, "expected":39,},
+  {"expr":
+    """
+    1+(
+      pw(
+        2+( pw(2/2+1,(2+4)/3) ),
+        (8-2)/2
+      )
+    )
+    """.replace('\n',''),
+    "coords":{}, "expected":1+(2+2**2)**3,},
 
   {"expr":"PI+E", "coords":{},
     "expected":3.14159265358979323846+2.71828182845904523536,},

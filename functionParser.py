@@ -4,6 +4,21 @@ import function as F
 from utils import mergeDict, decompose
 from constants import CONSTANTS
 
+# BUG
+# if parenthesis->function-notation->...
+# we want 1+(1+pw(2,3)) -> 1+_0_
+# we get  1+(1+pw(2,3)) -> 1+(1+pw(2,3))
+# if function-notation->parenthesis->...
+# we want pw((2+3),2) -> pw(_0_,2)
+# we get  pw((2+3),2) -> pw((2+3),2)
+# because PATTERN_PAR looks for couple of parenthesis without any nested parenthesis
+
+# solution 1 UGLY: alternatively tokenize parenthesis and function-notation until there are no-more
+# solution 2 PREFERRED: when looking for parenthesis,
+#   instead of (as is): look for parenthesis that have no nested parenthesis
+#   do this:            look for parenthesis that have no nested parenthesis, unless they belong to a function-notation
+
+
 """
 1)
   Code:
