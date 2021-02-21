@@ -3,6 +3,7 @@ import re
 import function as F
 from utils import mergeDict, decompose
 from constants import CONSTANTS
+import substringFinder as ssf
 
 """
 1)
@@ -112,62 +113,31 @@ from constants import CONSTANTS
 
 """
 
+
+
 PATTERN_PAR = '\([^\(\)]*\)' # 2+2+12*(1*(2/3)+2)+11 -> (2/3)
 PATTERN_PH = '_[0-9]+_'
 
 OPERANDS = list("+-*/^|!") # TODO reaname OPERATIONS
 KEYWORDS = ['rt', 'pw', 'lg']
 
-def getPattern(operands, pairnOnly=False):
-  excludedStr = '\\'+'\\'.join(o for o in OPERANDS if (o not in operands or pairnOnly))
-  selectedStr = '\\'+'\\'.join(o for o in operands)
-  return f"[^{excludedStr}]+[{selectedStr}][^{excludedStr}]+"
-
-def findInnerParenthesisRE(expr):
-  pattern = '(?<!'+'|'.join(KEYWORDS)+')'+PATTERN_PAR # all parenthesis that are not preceded by a keyword
-  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-
 def extractPlaceHolderRE(expr):
   return re.findall(PATTERN_PH, expr)
-
-def findAddSubRE(expr):
-  pattern = getPattern(["+","-"], True)
-  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-
-def findMultDivRE(expr):
-  pattern = getPattern(["*","/"], True)
-  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-
-def findPowRootRE(expr):
-  pattern = getPattern(["^","|"], True)
-  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-
-def findFactorialRE(expr):
-  pattern = '[^\+\-\*\/]+!'
-  return [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-
-def findKeyWordsRE(expr):
-  idxs=[]
-  for keyword in KEYWORDS:
-    pattern = keyword+PATTERN_PAR
-    idxs += [(m.start(0), m.end(0)) for m in re.finditer(pattern, expr)]
-  return idxs
-
-def findKeyWordsArgsRE(expr):
-  pattern = "\(.*["+'\\'+'\\'.join(OPERANDS)+"].*\,"
-  idxs = [(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, expr)]
-  pattern = "\,.*["+'\\'+'\\'.join(OPERANDS)+"].*\)"
-  idxs= idxs+[(m.start(0)+1, m.end(0)-1) for m in re.finditer(pattern, expr)]
-  return idxs
 
 """
 2+3*4^(3+1) -> 2+_2_, {_0_: 3+1, _1_: 4^_0_, _2_: 3*_1_}
 """
 def tokenize(expr, placeHolder=0):
-  expr, tokens = decompose(expr, findInnerParenthesisRE)
-  for k in tokens:
-    tokens[k] = tokens[k][1:-1] # remove parehtesis
-  for idxFinder in [findKeyWordsRE, findKeyWordsArgsRE, findFactorialRE, findPowRootRE, findMultDivRE, findAddSubRE]:
+  tokens={}
+  for idxFinder in [
+      ssf.InnerParenthesisFinder().find,
+      ssf.KeyWordsFinder().find,
+      ssf.KeyWordsArgsFinder().find,
+      ssf.FactorialFinder().find,
+      ssf.PowRootFinder().find,
+      ssf.MultDivFinder().find,
+      ssf.AddSubFinder().find
+    ]:
     expr, newTokens = decompose(expr, idxFinder, placeHolder+len(tokens.keys()))
     tokens = mergeDict(tokens, newTokens)
   return expr, tokens
@@ -187,6 +157,9 @@ Tree representation of a tokenized expression
 class ExpressionTree:
   def __init__(self, expr, tokens={}, placeHolder=0):
     self.expr, newTokens = tokenize(expr, placeHolder)
+    for k in newTokens:
+      if newTokens[k][0]=='(' and newTokens[k][-1]==')':
+        newTokens[k] = newTokens[k][1:-1]
     tokens = mergeDict(tokens, newTokens)
     self.tokens = {}
     tokenKeys = extractPlaceHolderRE(self.expr)
