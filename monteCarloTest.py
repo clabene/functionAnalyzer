@@ -10,8 +10,7 @@ def testWithSolution(expected, expr, inRanges, outRange, N=None, tollerance=0.1)
   fun = getFunction(expr)
   vol=monteCarlo(fun, inRanges=inRanges, outRange=outRange, N=N)
   # print("% 7f % 7f"%(abs(vol-expected), vol*tollerance), (vol-expected) < vol*tollerance)
-  assert (vol-expected) < vol*tollerance,
-    f"volume of {expr} on input space {inRanges} is off by (vol-exptected)"
+  assert (vol-expected) < vol*tollerance, f"volume of {expr} on input space {inRanges} is off by {vol-expected}"
 
 def testWithIntegral(integral, expr, inRanges, outRange, N=None, tollerance=0.1):
   fun = getFunction(expr)
@@ -25,8 +24,7 @@ def testWithIntegral(integral, expr, inRanges, outRange, N=None, tollerance=0.1)
   )
   expected = v1-v0
   # print("% 7f % 7f"%(abs(vol-expected), vol*tollerance), abs(vol-expected) < vol*tollerance)
-  assert (vol-expected) < vol*tollerance,
-    f"volume of {expr} on input space {inRanges} is off by (vol-exptected)"
+  assert (vol-expected) < vol*tollerance, f"volume of {expr} on input space {inRanges} is off by {vol-expected}"
 
 withSolution = [
   {"expected":50,"expr":"x","inRanges":[(0,10)],"outRange":(0,100),"N":None,},
