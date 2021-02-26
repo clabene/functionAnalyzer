@@ -112,7 +112,7 @@ class InnerParenthesisFinder(SubstringFinder):
 
     idxs = []
     openIdx=-1 # index of last open parenthesis met, function-notation excluded
-    toSkip=0 # nr of function-notation open parenthesis met not yet closed, since last open parenthesis excluded function-notation
+    toSkip=0 # nr of function-notation open parenthesis met not yet closed, since openIdx (since last open parenthesis excluded function-notation)
     for i,c in enumerate(s):
       if c == '(':
         if s[i-2:i] in KEYWORDS: toSkip+=1
