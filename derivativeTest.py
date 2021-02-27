@@ -34,7 +34,7 @@ class EqualityDerivativeTest(ITest):
     ]
 
   def test(self, expected, f, rng, N):
-    vars = f.getVariables()
+    vars = [v.name for v in f.getVariables()]
     samplePoint = lambda : [rand.random()*(xmax-xmin)+xmin for xmin,xmax in rng]
     sampledPoints = [samplePoint() for _ in range(N)]
 

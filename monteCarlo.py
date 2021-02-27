@@ -6,7 +6,7 @@ TODO estimate outRange
 """
 
 def monteCarlo(fun, inRanges, outRange, N=None):
-  vars = fun.getVariables()
+  vars = [v.name for v in fun.getVariables()]
   assert len(inRanges) >= len(vars)
   ranges=inRanges+[outRange] # sampling space
   V = 1 # volume of sampling region
