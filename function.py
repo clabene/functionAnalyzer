@@ -1,18 +1,21 @@
+from abc import ABC
 from math import log
 from utils import factorial
 
-"""
-TODO
-recursive call for optimize
-"""
+class IFunction(ABC):
+  pass
 
-class Variable:
+class Variable(IFunction):
   def __init__(self, name):
     self.name = name
   def __eq__(self, v2):
     return self.name == v2.name
 
-class BinaryFunction:
+class Constant(IFunction):
+  def __init__(self, value):
+    self.value = value
+
+class BinaryFunction(IFunction):
   def __init__(self, x1, x2, op):
     self.x1=x1
     self.x2=x2
@@ -32,8 +35,9 @@ class BinaryFunction:
   def _getValue(self, x, coords):
     if isinstance(x, Variable): return coords[x.name]
     elif isinstance(x, BinaryFunction): return x.doOperation(coords)
-    else: return x
-  
+    elif isinstance(x, Constant): return x.value
+    else: return None
+
   def doOperation(self,coords):
     v1=self._getValue(self.x1, coords)
     v2=self._getValue(self.x2, coords)
