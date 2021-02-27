@@ -1,7 +1,7 @@
 from substringFinderTest import SubstringFinderTest
 from functionParserTest import FunctionParserTest
 from monteCarloTest import MonteCarloWithIntegralTest, MonteCarloWithSolutionTest
-from derivativeTest import DerivativeTest
+from derivativeTest import FullDerivativeTest, EqualityDerivativeTest
 
 def runTest(T):
   for data in T.generateData():
@@ -11,4 +11,5 @@ def runTest(T):
 #runTest(FunctionParserTest())
 #runTest(MonteCarloWithIntegralTest())
 #runTest(MonteCarloWithSolutionTest())
-runTest(DerivativeTest())
+runTest(FullDerivativeTest())
+runTest(EqualityDerivativeTest())
