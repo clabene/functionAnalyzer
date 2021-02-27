@@ -4,7 +4,6 @@ Main features:
 - arbitrary number of variables
 - mathematical constants (atm Pi and Euler's number only)
 - in-line notation (eg "2^3") and function notation (eg "pw(2,3)") both supported (atm only for power, root and logarithms)
-- arbitrary number of variables
 - Monte Carlo integration
 
 TODO
