@@ -1,15 +1,19 @@
+from abc import ABC
 from math import log
 from utils import factorial
 
-class Variable:
+class IFunction(ABC):
+  pass
+
+class Variable(IFunction):
   def __init__(self, name):
     self.name = name
 
-class Constant:
+class Constant(IFunction):
   def __init__(self, value):
     self.value = value
 
-class BinaryFunction:
+class BinaryFunction(IFunction):
   def __init__(self, x1, x2, op):
     self.x1=x1
     self.x2=x2
