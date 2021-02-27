@@ -11,6 +11,9 @@ class IFunction(ABC):
   @abstractmethod
   def derivative(self):
     pass
+  @abstractmethod
+  def getVariables(self):
+    pass
 
 class Variable(IFunction):
   def __init__(self, name):
@@ -21,6 +24,8 @@ class Variable(IFunction):
     return self
   def derivative(self):
     return Constant(1)
+  def getVariables(self):
+    return [self]
 
 class Constant(IFunction):
   def __init__(self, value):
@@ -31,6 +36,8 @@ class Constant(IFunction):
     return self
   def derivative(self):
     return Constant(0)
+  def getVariables(self):
+    return []
 
 class BinaryFunction(IFunction):
   def __init__(self, x1, x2, op, keyWord=''):
@@ -46,16 +53,9 @@ class BinaryFunction(IFunction):
     return str(self) == str(f2)
 
   def getVariables(self):
-    vars=[]
-    for x in (self.x1,self.x2):
-      if isinstance(x, Variable) and x not in vars:
-          vars.append(x.name)
-      elif isinstance(x, BinaryFunction):
-        for v in x.getVariables():
-          if v not in vars:
-            vars.append(v)
-    return vars
-
+    vars1 = self.x1.getVariables()
+    if not self.x2: return vars1
+    return vars1 + [v for v in self.x2.getVariables() if v not in vars1]
 
   def derivative(self):
     if len(self.getVariables()) > 1:

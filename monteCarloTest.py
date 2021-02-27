@@ -31,13 +31,15 @@ class MonteCarloWithIntegralTest(ITest):
     return MonteCarloWithIntegralTest.data
   def test(self, integral, expr, inRanges, outRange, N=None, tollerance=0.1):
     fun = getFunction(expr)
-    fun_i = getFunction(integral)
     vol=monteCarlo(fun, inRanges=inRanges, outRange=outRange, N=N)
+    
+    fun_i = getFunction(integral)
+    vars_i = [v.name for v in fun_i.getVariables()]
     v1 = fun_i.doOperation(
-      coords=dict(zip(fun_i.getVariables(), [r for _,r in inRanges] ))
+      coords=dict(zip(vars_i, [r for _,r in inRanges] ))
     )
     v0 = fun_i.doOperation(
-      coords=dict(zip(fun_i.getVariables(), [l for l,_ in inRanges] ))
+      coords=dict(zip(vars_i, [l for l,_ in inRanges] ))
     )
     expected = v1-v0
     assert (vol-expected) < vol*tollerance, f"volume of {expr} on input space {inRanges} is off by {vol-expected}"
