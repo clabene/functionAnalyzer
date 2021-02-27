@@ -8,10 +8,10 @@ def runTest(T):
   for data in T.generateData():
     T.test(**data)
 
-# runTest(SubstringFinderTest())
-# runTest(FunctionParserTest())
-# runTest(MonteCarloWithIntegralTest())
-# runTest(MonteCarloWithSolutionTest())
+runTest(SubstringFinderTest())
+runTest(FunctionParserTest())
+runTest(MonteCarloWithIntegralTest())
+runTest(MonteCarloWithSolutionTest())
 runTest(OptimizeTest())
 runTest(FullDerivativeTest())
 runTest(EqualityDerivativeTest())

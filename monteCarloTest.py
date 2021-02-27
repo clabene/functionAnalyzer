@@ -25,7 +25,7 @@ class MonteCarloWithIntegralTest(ITest):
   data = [
     {"integral":"(x^2)/2","expr":"x","inRanges":[(0,10)],"outRange":(0,100),"N":None,},
     {"integral":"(x^4)/8","expr":"(x^3)/2","inRanges":[(0,10)],"outRange":(0,10_000),"N":None,},
-    {"integral":"2*lg(x,E)","expr":"2/x","inRanges":[(5,15)],"outRange":(0,1),"N":None,},
+    {"integral":"2*lg(x,E)","expr":"2/x","inRanges":[(5,15)],"outRange":(0,1),"N":100_000,},
   ]
   def generateData(self):
     return MonteCarloWithIntegralTest.data
