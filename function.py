@@ -1,13 +1,21 @@
+from abc import ABC
 from math import log
 from utils import factorial
 
-class Variable:
+class IFunction(ABC):
+  pass
+
+class Variable(IFunction):
   def __init__(self, name):
     self.name = name
   def __str__(self):
     return self.name
 
-class BinaryFunction:
+class Constant(IFunction):
+  def __init__(self, value):
+    self.value = value
+
+class BinaryFunction(IFunction):
   def __init__(self, x1, x2, op):
     self.x1=x1
     self.x2=x2
@@ -36,7 +44,8 @@ class BinaryFunction:
   def _getValue(self, x, coords):
     if isinstance(x, Variable): return coords[x.name]
     elif isinstance(x, BinaryFunction): return x.doOperation(coords)
-    else: return x
+    elif isinstance(x, Constant): return x.value
+    else: return None
 
   def _getDerivative(self, x):
     if isinstance(x, Variable): return 1

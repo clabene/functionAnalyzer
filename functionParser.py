@@ -199,7 +199,7 @@ isRoot        = lambda s: '|' in s
 
 def parseUnit(element):
   if isNumber(element):
-    return float(element)
+    return F.Constant(float(element))
   elif isVariable(element):
     return F.Variable(name=element)
 
