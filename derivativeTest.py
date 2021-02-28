@@ -42,6 +42,6 @@ class EqualityDerivativeTest(ITest):
     
     for x in sampledPoints:
       params = dict(zip(vars, x))
-      d = der.doOperation(params)
-      e = expected.doOperation(params)
+      d = der.operation(params)
+      e = expected.operation(params)
       assert abs(d-e)<1E-5, f"expected {e}, got {d} for {x}"
