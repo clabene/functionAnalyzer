@@ -14,6 +14,9 @@ class IFunction(ABC):
   @abstractmethod
   def getVariables(self):
     pass
+  @abstractmethod
+  def operation(self, coordinate):
+    pass
 
 class Variable(IFunction):
   def __init__(self, name):
@@ -26,6 +29,8 @@ class Variable(IFunction):
     return Constant(1)
   def getVariables(self):
     return [self]
+  def operation(self, coordinate):
+    return coordinate[self.name]
 
 class Constant(IFunction):
   def __init__(self, value):
@@ -38,6 +43,8 @@ class Constant(IFunction):
     return Constant(0)
   def getVariables(self):
     return []
+  def operation(self, coordinate):
+    return self.value
 
 class BinaryFunction(IFunction):
   def __init__(self, x1, x2, op, keyWord=''):
@@ -62,24 +69,23 @@ class BinaryFunction(IFunction):
   
   def _derivative(self):
     pass
-  
-  def _getValue(self, x, coords):
-    if isinstance(x, Variable): return coords[x.name]
-    elif isinstance(x, BinaryFunction): return x.doOperation(coords)
-    elif isinstance(x, Constant): return x.value
-    else: return None
 
-  def doOperation(self,coords):
-    v1=self._getValue(self.x1, coords)
-    v2=self._getValue(self.x2, coords)
-    return self.op(v1, v2)
+  def operation(self,coords):
+    if self.x2 == None:
+      return self._operation(self.x1.operation(coords), None)
+    return self._operation(self.x1.operation(coords), self.x2.operation(coords))
+
+  def _operation(self, x1, x2):
+    pass
 
   def optimize(self):
     pass
 
 class Identity(BinaryFunction):
   def __init__(self, x1):
-    super(Identity, self).__init__(x1, None, lambda x,y: x, keyWord='Id')
+    super(Identity, self).__init__(x1, None, keyWord='Id')
+  def _operation(self, x, y):
+    return x
   def _derivative(self):
     return Identity(self.x1.derivative())
   def optimize(self):
@@ -87,7 +93,9 @@ class Identity(BinaryFunction):
   
 class Addition(BinaryFunction):
   def __init__(self, x1, x2):
-    super(Addition, self).__init__(x1, x2, lambda x,y: x+y, keyWord='Add')
+    super(Addition, self).__init__(x1, x2, keyWord='Add')
+  def _operation(self, x, y):
+    return x+y
   def _derivative(self):
     return Addition(self.x1.derivative(),self.x2.derivative())
   def optimize(self):
@@ -98,7 +106,9 @@ class Addition(BinaryFunction):
 
 class Subtraction(BinaryFunction):
   def __init__(self, x1, x2):
-      super(Subtraction, self).__init__(x1, x2, lambda x,y: x-y, keyWord='Sub')
+      super(Subtraction, self).__init__(x1, x2, keyWord='Sub')
+  def _operation(self, x, y):
+    return x-y
   def _derivative(self):
     return Subtraction(self.x1.derivative(),self.x2.derivative())
   def optimize(self):
@@ -111,7 +121,9 @@ class Subtraction(BinaryFunction):
 
 class Multiplication(BinaryFunction):
   def __init__(self, x1, x2):
-    super(Multiplication, self).__init__(x1, x2, lambda x,y: x*y, keyWord='Mult')
+    super(Multiplication, self).__init__(x1, x2, keyWord='Mult')
+  def _operation(self, x, y):
+    return x*y
   def _derivative(self):
     return Addition(
       Multiplication(self.x1.derivative(), self.x2),
@@ -127,7 +139,9 @@ class Multiplication(BinaryFunction):
 
 class Division(BinaryFunction):
   def __init__(self, x1, x2):
-    super(Division, self).__init__(x1, x2, lambda x,y: x/y, keyWord='Div')
+    super(Division, self).__init__(x1, x2, keyWord='Div')
+  def _operation(self, x, y):
+    return x/y
   def _derivative(self):
     # (f'*g - f*g')/(g^2)
     return\
@@ -148,7 +162,9 @@ class Division(BinaryFunction):
 
 class Power(BinaryFunction):
   def __init__(self, x1, x2):
-    super(Power, self).__init__(x1, x2, lambda x,y: x**y, keyWord='Pow')
+    super(Power, self).__init__(x1, x2, keyWord='Pow')
+  def _operation(self, x, y):
+    return x**y
   def _derivative(self):
     # derivative of f^g = (f^g)*((f'*g)/f + ln(f)*g')
     return \
@@ -167,7 +183,9 @@ class Power(BinaryFunction):
 
 class Root(BinaryFunction):
   def __init__(self, x1, x2):
-    super(Root, self).__init__(x1, x2, lambda x,y: x**(1/y), keyWord='Root')
+    super(Root, self).__init__(x1, x2, keyWord='Root')
+  def _operation(self, x, y):
+    return x**(1/y)
   def _derivative(self):
     return Power(self.x1, Division(1, self.x2)).derivative()
   def optimize(self):
@@ -179,7 +197,9 @@ class Root(BinaryFunction):
 
 class Logarithm(BinaryFunction):
   def __init__(self, x1, x2):
-    super(Logarithm, self).__init__(x1, x2, log, keyWord='Log')
+    super(Logarithm, self).__init__(x1, x2, keyWord='Log')
+  def _operation(self, x, y):
+    return log(x,y)
   def _derivative(self):
     pass # TODO
   def optimize(self):
@@ -188,7 +208,9 @@ class Logarithm(BinaryFunction):
   
 class Factorial(BinaryFunction):
   def __init__(self, x1):
-    super(Factorial, self).__init__(x1, None, lambda x,y: factorial(x), keyWord='Fact')
+    super(Factorial, self).__init__(x1, None, keyWord='Fact')
+  def _operation(self, x, y):
+    return factorial(x)
   def _derivative(self):
     pass # TODO
   def optimize(self):

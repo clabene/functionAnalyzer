@@ -74,6 +74,6 @@ class FunctionParserTest(ITest):
     return FunctionParserTest.data
   def test(self, expr, coords, expected):
     f=getFunction(expr)
-    res = f.doOperation(coords=coords)
+    res = f.operation(coords=coords)
     assert (expected == res), \
       "expr: %s, expected: %f, actual: %f"%(expr, expected, res)

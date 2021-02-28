@@ -35,10 +35,10 @@ class MonteCarloWithIntegralTest(ITest):
     
     fun_i = getFunction(integral)
     vars_i = [v.name for v in fun_i.getVariables()]
-    v1 = fun_i.doOperation(
+    v1 = fun_i.operation(
       coords=dict(zip(vars_i, [r for _,r in inRanges] ))
     )
-    v0 = fun_i.doOperation(
+    v0 = fun_i.operation(
       coords=dict(zip(vars_i, [l for l,_ in inRanges] ))
     )
     expected = v1-v0
