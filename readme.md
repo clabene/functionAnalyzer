@@ -6,10 +6,12 @@ Main features:
 - in-line notation (eg "2^3") and function notation (eg "pw(2,3)") both supported (atm only for power, root and logarithms)
 - Monte Carlo integration
 
+WIP
+- Derivative (only for 1 variable function)
+- optimizer
+
 TODO
-- absolute value
+- Absolute value
 - UI
 - plotter (only 2D)
-- improve testing
 - include wider support for function notation
-- derivatives
