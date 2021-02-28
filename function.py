@@ -47,10 +47,9 @@ class Constant(IFunction):
     return self.value
 
 class BinaryFunction(IFunction):
-  def __init__(self, x1, x2, op, keyWord=''):
+  def __init__(self, x1, x2, keyWord=''):
     self.x1=x1
     self.x2=x2
-    self.op=op
     self.keyWord = keyWord
 
   def __str__(self):
