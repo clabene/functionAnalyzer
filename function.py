@@ -49,9 +49,6 @@ class BinaryFunction(IFunction):
   def __str__(self):
     return self.keyWord+'('+str(self.x1)+', '+str(self.x2)+')'
 
-  def __eq__(self, f2):
-    return str(self) == str(f2)
-
   def getVariables(self):
     vars1 = self.x1.getVariables()
     if not self.x2: return vars1
