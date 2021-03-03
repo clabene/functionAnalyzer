@@ -1,4 +1,4 @@
-from iTest import ITest
+from Tests.iTest import ITest
 
 from functionParser import getFunction
 import math
