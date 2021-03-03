@@ -2,7 +2,7 @@
 Per più integrali:
 https://www.youmath.it/esercizi/es-analisi-matematica/es-sugli-integrali/3305-esercizi-integrali-elementari.html
 """
-from iTest import ITest
+from Tests.iTest import ITest
 
 from monteCarlo import monteCarlo
 from functionParser import getFunction
@@ -10,7 +10,7 @@ from functionParser import getFunction
 class MonteCarloWithSolutionTest(ITest):
   data = [
     {"expected":50,"expr":"x","inRanges":[(0,10)],"outRange":(0,100),"N":None,},
-    {"expected":3.14159265358979323846,"expr":"PI","inRanges":[],"outRange":(0,5),"N":None,},
+    {"expected":3.14159265358979323846,"expr":"PI","inRanges":[],"outRange":(0,5),"N":10_000,},
     {"expected":3*5,"expr":"3","inRanges":[(0,5)],"outRange":(0,5),"N":None,},
   ]
   def generateData(self):

@@ -1,4 +1,4 @@
-from iTest import ITest
+from Tests.iTest import ITest
 import substringFinder as ssf
 
 class SubstringFinderTest(ITest):

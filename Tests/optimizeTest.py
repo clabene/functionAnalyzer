@@ -1,4 +1,4 @@
-from iTest import ITest
+from Tests.iTest import ITest
 import function as F
 
 class OptimizeTest(ITest):
